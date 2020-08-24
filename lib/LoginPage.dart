@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Registeration.dart';
+import 'SReg.dart';
+import 'TReg.dart';
 
 class LoginPage extends StatefulWidget{
 
@@ -45,8 +46,12 @@ class _LoginPageState extends State<LoginPage>{
       }
     }
 
-    Future navigateToSubPage(context) async {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Registeration()));
+    Future navigateToTReg(context) async {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => TRegisteration()));
+    }
+
+    Future navigateToSReg(context) async {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SRegisteration()));
     }
 
     @override
@@ -75,13 +80,28 @@ class _LoginPageState extends State<LoginPage>{
                     color: Color.fromRGBO(166 ,118, 51, 1),
                       child: new Text("Login", style: new TextStyle(fontSize: 20),),
                       onPressed: ValidateAndSubmit,
+                  ),new Row(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: new FlatButton(
+                            child: new Text("Register as Teacher", style: new TextStyle(fontSize: 13),),
+                            onPressed:(){
+                              navigateToTReg(context);
+                            }
+                        )
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: new FlatButton(
+                            child: new Text("Register as Student", style: new TextStyle(fontSize: 13),),
+                            onPressed:(){
+                              navigateToSReg(context);
+                            }
+                        )
+                      ),
+                    ],
                   ),
-                  new FlatButton(
-                    child: new Text("Create a new Account?", style: new TextStyle(fontSize: 15),),
-                    onPressed:(){
-                      navigateToSubPage(context);
-                    }
-                  )
                 ],
               ),
             )
