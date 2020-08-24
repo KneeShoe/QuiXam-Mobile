@@ -1,5 +1,7 @@
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:quixam/PasswordUtils.dart';
 
 
 class TRegisteration extends StatefulWidget {
@@ -70,10 +72,14 @@ class _TRegisterationState extends State<TRegisteration> {
                       content: Text("Registering your User"),
                     )));
                     if (_formKey.currentState.validate()) {
+                      PasswordUtils pu= new PasswordUtils();
+                      List l1=pu.hash(_pass);
                       dbRef.push().set({
                         "name": "$_name",
                         "usn": "$_fid",
                         "pass": "$_pass",
+                        "hash": l1[0],
+                        "salt": l1[1],
                         "email": "$_email",
                         "type": "Teacher",
                       }).then((_) {

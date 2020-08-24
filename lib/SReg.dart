@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:quixam/PasswordUtils.dart';
 
 
 class SRegisteration extends StatefulWidget {
@@ -78,10 +79,14 @@ class _SRegisterationState extends State<SRegisteration> {
                 color: Color.fromRGBO(166 ,118, 51, 1),
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
+                    PasswordUtils pu= new PasswordUtils();
+                    List l1=pu.hash(_pass);
                     dbRef.push().set({
                       "name": "$_name",
                       "usn": "$_usn",
                       "pass": "$_pass",
+                      "hash": l1[0],
+                      "salt": l1[1],
                       "sec": "$_sec",
                       "sem": "$_sem",
                       "email": "$_email",
