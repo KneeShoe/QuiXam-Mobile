@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:quixam/PasswordUtils.dart';
@@ -18,6 +21,50 @@ class _TRegisterationState extends State<TRegisteration> {
   String _pass;
   String _email;
 
+
+  void validateAndSubmit() async{
+    _formKey.currentState.save();
+    if (_formKey.currentState.validate()) {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Registering User"),)
+      );
+      final cred = await dbRef.orderByChild("fid").equalTo(_fid).once();
+      Map<dynamic, dynamic> values = cred.value;
+      if (cred.value == null) {
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("Creating User"),)
+        );
+        PasswordUtils pu = new PasswordUtils();
+        List l1 = pu.hash(_pass);
+        dbRef.push().set({
+          "name": "$_name",
+          "fid": "$_fid",
+          "hash": l1[0],
+          "salt": l1[1],
+          "email": "$_email",
+          "type": "Teacher",
+        }).then((_) {
+          _scaffoldKey.currentState.showSnackBar((SnackBar(
+            content: Text("Successfully added"),
+          )));
+          navigateToLogin(context);
+        }).catchError((onError) {
+          _scaffoldKey.currentState.showSnackBar((SnackBar(
+            content: Text(onError.toString()),
+          )));
+        });
+
+      }
+    }else {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("User with that Fid already exists"),)
+      );
+    }
+  }
+
+  Future navigateToLogin(context) async {
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,32 +110,7 @@ class _TRegisterationState extends State<TRegisteration> {
 
                 new RaisedButton(
                   color: Color.fromRGBO(166 ,118, 51, 1),
-                  onPressed: () {
-                    _formKey.currentState.save();
-                    _scaffoldKey.currentState.showSnackBar((SnackBar(
-                      content: Text("Registering your User"),
-                    )));
-                    if (_formKey.currentState.validate()) {
-                      PasswordUtils pu= new PasswordUtils();
-                      List l1=pu.hash(_pass);
-                      dbRef.push().set({
-                        "name": "$_name",
-                        "usn": "$_fid",
-                        "hash": l1[0],
-                        "salt": l1[1],
-                        "email": "$_email",
-                        "type": "Teacher",
-                      }).then((_) {
-                        _scaffoldKey.currentState.showSnackBar((SnackBar(
-                          content: Text("Successfully added"),
-                        )));
-                      }).catchError((onError) {
-                        _scaffoldKey.currentState.showSnackBar((SnackBar(
-                          content: Text(onError.toString()),
-                        )));
-                      });
-                    }
-                  },
+                  onPressed: validateAndSubmit,
                   child: Text('Submit'),
                 ),
               ],

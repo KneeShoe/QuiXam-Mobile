@@ -15,43 +15,57 @@ class LoginPage extends StatefulWidget{
 class _LoginPageState extends State<LoginPage>{
     final _scaffoldKey= new GlobalKey<ScaffoldState>();
     final db= FirebaseDatabase.instance;
-    String _usn;
+    String _id;
     String _password;
     String _salt;
     String _hash;
     final formkey = new GlobalKey<FormState>();
 
     void validateAndSubmit() async {
-      PasswordUtils pu=new PasswordUtils();
+      PasswordUtils pu = new PasswordUtils();
       formkey.currentState.save();
-      if(formkey.currentState.validate()) {
-        final ref=db.reference();
+      if (formkey.currentState.validate()) {
+        final ref = db.reference();
         _scaffoldKey.currentState.showSnackBar(
-          SnackBar(content: Text("Logging in..."),)
+            SnackBar(content: Text("Logging in..."),)
         );
-        final cred= await ref.child("Credentials").orderByChild("usn").equalTo(_usn).once();
-        Map<dynamic, dynamic> values=cred.value;
-        if(cred.value == null){
+        final cred = await ref.child("Credentials").orderByChild("usn").equalTo(
+            _id).once();
+        final cred1 = await ref.child("Credentials")
+            .orderByChild("fid")
+            .equalTo(_id)
+            .once();
+        Map<dynamic, dynamic> values = cred.value;
+        Map<dynamic, dynamic> values1 = cred1.value;
+        if (cred.value == null && cred1.value == null) {
           _scaffoldKey.currentState.showSnackBar(
               SnackBar(content: Text("User does not exist"),)
           );
         }
-        else{
-          values.forEach((key, value) {
-            _salt = value['salt'];
-            _hash = value['hash'];
-          });
-          if(pu.verify(_password, _salt, _hash)){
-            _scaffoldKey.currentState.showSnackBar(
-                SnackBar(content: Text("Login Succesful"),)
-            );
-          }else{
-            _scaffoldKey.currentState.showSnackBar(
-                SnackBar(content: Text("Wrong Password"),)
-            );
+        else {
+          if (cred.value == null) {
+            values1.forEach((key, value) {
+              _salt = value['salt'];
+              _hash = value['hash'];
+            });
+          }
+          else {
+            values.forEach((key, value) {
+              _salt = value['salt'];
+              _hash = value['hash'];
+            });
+          }
+            if (pu.verify(_password, _salt, _hash)) {
+              _scaffoldKey.currentState.showSnackBar(
+                  SnackBar(content: Text("Login Successful"),)
+              );
+            } else {
+              _scaffoldKey.currentState.showSnackBar(
+                  SnackBar(content: Text("Wrong Password"),)
+              );
+            }
           }
         }
-      }
     }
 
     Future navigateToTReg(context) async {
@@ -80,8 +94,8 @@ class _LoginPageState extends State<LoginPage>{
                 children: <Widget> [
                   new Text("QuiXam", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40, color: Color.fromRGBO(166 ,118, 51, 1)), ),
                   new TextFormField( decoration: new InputDecoration(labelText: "USN"),
-                                      validator: (value)=> value.isEmpty ? 'Please fill in the USN' : null,
-                                      onSaved: (value) => _usn=value,),
+                                      validator: (value)=> value.isEmpty ? 'Please fill in the ID (Fid/USN)' : null,
+                                      onSaved: (value) => _id=value,),
                   new TextFormField( decoration: new InputDecoration(labelText: "Password"), obscureText: true,
                                       validator: (value)=> value.isEmpty ? 'Please fill in the password' : null,
                                       onSaved: (value) => _password=value,),

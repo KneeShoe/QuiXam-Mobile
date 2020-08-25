@@ -20,6 +20,49 @@ class _SRegisterationState extends State<SRegisteration> {
   String _sem;
   String _email;
 
+  void validateAndSubmit() async {
+    _formKey.currentState.save();
+    if (_formKey.currentState.validate()) {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Registering User"),)
+      );
+      final cred = await dbRef.orderByChild("usn").equalTo(_usn).once();
+      Map<dynamic, dynamic> values = cred.value;
+      if (cred.value == null) {
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("Creating User"),)
+        );
+        PasswordUtils pu = new PasswordUtils();
+        List l1 = pu.hash(_pass);
+        dbRef.push().set({
+          "name": "$_name",
+          "usn": "$_usn",
+          "hash": l1[0],
+          "salt": l1[1],
+          "sec": "$_sec",
+          "sem": "$_sem",
+          "email": "$_email",
+          "type": "Student",
+        }).then((_) {
+          _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text('Successfully Added')));
+          navigateToLogin(context);
+        }).catchError((onError) {
+          _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text(onError)));
+        });
+      }else{
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("User with that USN already exists"),)
+        );
+      }
+    }
+  }
+
+  Future navigateToLogin(context) async {
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,48 +120,9 @@ class _SRegisterationState extends State<SRegisteration> {
 
               new RaisedButton(
                 color: Color.fromRGBO(166 ,118, 51, 1),
-                onPressed: ()  {
-                  _formKey.currentState.save();
-                  if (_formKey.currentState.validate()) {
-//                    final ref = db.reference();
-//                    _scaffoldKey.currentState.showSnackBar(
-//                        SnackBar(content: Text("Logging in..."),)
-//                    );
-//                    final cred = await ref.child("Credentials").orderByChild(
-//                        "usn").equalTo(_usn).once();
-//                    Map<dynamic, dynamic> values = cred.value;
-//                    if (cred.value == null) {
-//                      _scaffoldKey.currentState.showSnackBar(
-//                          SnackBar(content: Text("User does not exist"),)
-//                      );
-//                    }
-                      PasswordUtils pu = new PasswordUtils();
-                      List l1 = pu.hash(_pass);
-                      dbRef.push().set({
-                        "name": "$_name",
-                        "usn": "$_usn",
-                        "hash": l1[0],
-                        "salt": l1[1],
-                        "sec": "$_sec",
-                        "sem": "$_sem",
-                        "email": "$_email",
-                        "type": "Student",
-                      }).then((_) {
-                        _scaffoldKey.currentState.showSnackBar(
-                            SnackBar(content: Text('Successfully Added')));
-                      }).catchError((onError) {
-                        _scaffoldKey.currentState.showSnackBar(
-                            SnackBar(content: Text(onError)));
-                      });
-                    }
-                },
+                onPressed: validateAndSubmit,
                 child: Text('Submit'),
               ),
-              RaisedButton(
-                onPressed: (){
-
-                },
-              )
             ],
           ),
         ),
