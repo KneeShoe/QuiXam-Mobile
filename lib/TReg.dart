@@ -1,4 +1,3 @@
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:quixam/PasswordUtils.dart';
@@ -17,7 +16,6 @@ class _TRegisterationState extends State<TRegisteration> {
   String _name;
   String _fid;
   String _pass;
-  String _cpass;
   String _email;
 
 
@@ -54,8 +52,7 @@ class _TRegisterationState extends State<TRegisteration> {
 
                 new TextFormField( decoration: new InputDecoration(labelText: "Confirm Password"),
                   validator: (value)=> value!=_pass ? 'Passwords did not match' : null,
-                  autofocus: false, obscureText: true,
-                  onSaved: (value) => _cpass=value,),
+                  autofocus: false, obscureText: true,),
 
                 new TextFormField( decoration: new InputDecoration(labelText: "Email"),
                   validator: (value)=> value.isEmpty ? 'Please fill in your Email' : null,
@@ -77,7 +74,6 @@ class _TRegisterationState extends State<TRegisteration> {
                       dbRef.push().set({
                         "name": "$_name",
                         "usn": "$_fid",
-                        "pass": "$_pass",
                         "hash": l1[0],
                         "salt": l1[1],
                         "email": "$_email",
@@ -88,7 +84,7 @@ class _TRegisterationState extends State<TRegisteration> {
                         )));
                       }).catchError((onError) {
                         _scaffoldKey.currentState.showSnackBar((SnackBar(
-                          content: Text(onError),
+                          content: Text(onError.toString()),
                         )));
                       });
                     }

@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:quixam/PasswordUtils.dart';
 
 import 'SReg.dart';
 import 'TReg.dart';
@@ -12,36 +13,43 @@ class LoginPage extends StatefulWidget{
 }
 
 class _LoginPageState extends State<LoginPage>{
-    FirebaseAuth auth = FirebaseAuth.instance;
-    String _email;
+    final _scaffoldKey= new GlobalKey<ScaffoldState>();
+    final db= FirebaseDatabase.instance;
+    String _usn;
     String _password;
+    String _salt;
+    String _hash;
     final formkey = new GlobalKey<FormState>();
 
-
-    bool ValidateAndSave(){
-      final form = formkey.currentState;
-      if(form.validate()){
-        form.save();
-        return true;
-      }
-      return false;
-    }
-
-    void ValidateAndSubmit() async {
-
-      if (ValidateAndSave()) {
-        try {
-          UserCredential user = await FirebaseAuth.instance.signInWithEmailAndPassword(
-              email: _email,
-              password: _password
+    void validateAndSubmit() async {
+      PasswordUtils pu=new PasswordUtils();
+      formkey.currentState.save();
+      if(formkey.currentState.validate()) {
+        final ref=db.reference();
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Logging in..."),)
+        );
+        final cred= await ref.child("Credentials").orderByChild("usn").equalTo(_usn).once();
+        Map<dynamic, dynamic> values=cred.value;
+        if(cred.value == null){
+          _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text("User does not exist"),)
           );
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found') {
-            print('No user found for that email.');
-          } else if (e.code == 'wrong-password') {
-            print('Wrong password provided for that user.');
-          }else
-            print(e.code);
+        }
+        else{
+          values.forEach((key, value) {
+            _salt = value['salt'];
+            _hash = value['hash'];
+          });
+          if(pu.verify(_password, _salt, _hash)){
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("Login Succesful"),)
+            );
+          }else{
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("Wrong Password"),)
+            );
+          }
         }
       }
     }
@@ -57,6 +65,7 @@ class _LoginPageState extends State<LoginPage>{
     @override
     Widget build(BuildContext context){
         return Scaffold(
+          key: _scaffoldKey,
           appBar: new AppBar(
             title: new Text("Login Page"),
             backgroundColor: Color.fromRGBO(166 ,118, 51, 1),
@@ -70,35 +79,29 @@ class _LoginPageState extends State<LoginPage>{
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget> [
                   new Text("QuiXam", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40, color: Color.fromRGBO(166 ,118, 51, 1)), ),
-                  new TextFormField( decoration: new InputDecoration(labelText: "Email"),
-                                      validator: (value)=> value.isEmpty ? 'Please fill in the email' : null,
-                                      onSaved: (value) => _email=value,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "USN"),
+                                      validator: (value)=> value.isEmpty ? 'Please fill in the USN' : null,
+                                      onSaved: (value) => _usn=value,),
                   new TextFormField( decoration: new InputDecoration(labelText: "Password"), obscureText: true,
                                       validator: (value)=> value.isEmpty ? 'Please fill in the password' : null,
                                       onSaved: (value) => _password=value,),
                   new RaisedButton(
                     color: Color.fromRGBO(166 ,118, 51, 1),
                       child: new Text("Login", style: new TextStyle(fontSize: 20),),
-                      onPressed: ValidateAndSubmit,
+                      onPressed: validateAndSubmit,
                   ),new Row(
                     children: [
-                      Flexible(
-                        flex: 1,
-                        child: new FlatButton(
-                            child: new Text("Register as Teacher", style: new TextStyle(fontSize: 13),),
-                            onPressed:(){
-                              navigateToTReg(context);
-                            }
-                        )
+                       new FlatButton(
+                         child: new Text("Register as Teacher", style: new TextStyle(fontSize: 13),),
+                         onPressed:() {
+                            navigateToTReg(context);
+                        }
                       ),
-                      Flexible(
-                        flex: 1,
-                        child: new FlatButton(
-                            child: new Text("Register as Student", style: new TextStyle(fontSize: 13),),
-                            onPressed:(){
-                              navigateToSReg(context);
-                            }
-                        )
+                      new FlatButton(
+                         child: new Text("Register as Student", style: new TextStyle(fontSize: 13),),
+                          onPressed:(){
+                            navigateToSReg(context);
+                         }
                       ),
                     ],
                   ),

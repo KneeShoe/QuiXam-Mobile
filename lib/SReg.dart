@@ -11,11 +11,11 @@ class SRegisteration extends StatefulWidget {
 class _SRegisterationState extends State<SRegisteration> {
 
   final _formKey = new GlobalKey<FormState>();
+  final _scaffoldKey = new GlobalKey<ScaffoldState>();
   final dbRef = FirebaseDatabase.instance.reference().child("Credentials");
   String _name;
   String _usn;
   String _pass;
-  String _cpass;
   String _sec;
   String _sem;
   String _email;
@@ -23,6 +23,7 @@ class _SRegisterationState extends State<SRegisteration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Registration"),
         backgroundColor: Color.fromRGBO(166 ,118, 51, 1),
@@ -56,8 +57,7 @@ class _SRegisterationState extends State<SRegisteration> {
 
               new TextFormField( decoration: new InputDecoration(labelText: "Confirm Password"),
                 validator: (value)=> value!=_pass ? 'Passwords did not match' : null,
-                autofocus: false, obscureText: true,
-                onSaved: (value) => _cpass=value,),
+                autofocus: false, obscureText: true,),
 
 
               new TextFormField( decoration: new InputDecoration(labelText: "Semester"),
@@ -77,31 +77,48 @@ class _SRegisterationState extends State<SRegisteration> {
 
               new RaisedButton(
                 color: Color.fromRGBO(166 ,118, 51, 1),
-                onPressed: () {
+                onPressed: ()  {
+                  _formKey.currentState.save();
                   if (_formKey.currentState.validate()) {
-                    PasswordUtils pu= new PasswordUtils();
-                    List l1=pu.hash(_pass);
-                    dbRef.push().set({
-                      "name": "$_name",
-                      "usn": "$_usn",
-                      "pass": "$_pass",
-                      "hash": l1[0],
-                      "salt": l1[1],
-                      "sec": "$_sec",
-                      "sem": "$_sem",
-                      "email": "$_email",
-                      "type": "Student",
-                    }).then((_) {
-                      Scaffold.of(context).showSnackBar(
-                          SnackBar(content: Text('Successfully Added')));
-                    }).catchError((onError) {
-                      Scaffold.of(context)
-                          .showSnackBar(SnackBar(content: Text(onError)));
-                    });
-                  }
+//                    final ref = db.reference();
+//                    _scaffoldKey.currentState.showSnackBar(
+//                        SnackBar(content: Text("Logging in..."),)
+//                    );
+//                    final cred = await ref.child("Credentials").orderByChild(
+//                        "usn").equalTo(_usn).once();
+//                    Map<dynamic, dynamic> values = cred.value;
+//                    if (cred.value == null) {
+//                      _scaffoldKey.currentState.showSnackBar(
+//                          SnackBar(content: Text("User does not exist"),)
+//                      );
+//                    }
+                      PasswordUtils pu = new PasswordUtils();
+                      List l1 = pu.hash(_pass);
+                      dbRef.push().set({
+                        "name": "$_name",
+                        "usn": "$_usn",
+                        "hash": l1[0],
+                        "salt": l1[1],
+                        "sec": "$_sec",
+                        "sem": "$_sem",
+                        "email": "$_email",
+                        "type": "Student",
+                      }).then((_) {
+                        _scaffoldKey.currentState.showSnackBar(
+                            SnackBar(content: Text('Successfully Added')));
+                      }).catchError((onError) {
+                        _scaffoldKey.currentState.showSnackBar(
+                            SnackBar(content: Text(onError)));
+                      });
+                    }
                 },
                 child: Text('Submit'),
               ),
+              RaisedButton(
+                onPressed: (){
+
+                },
+              )
             ],
           ),
         ),
