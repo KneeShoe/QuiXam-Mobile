@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:quixam/PasswordUtils.dart';
+import 'file:///C:/Users/chitr/AndroidStudioProjects/quixam/lib/MIsc/PasswordUtils.dart';
 
 
 class TRegisteration extends StatefulWidget {
@@ -44,9 +41,6 @@ class _TRegisterationState extends State<TRegisteration> {
           "email": "$_email",
           "type": "Teacher",
         }).then((_) {
-          _scaffoldKey.currentState.showSnackBar((SnackBar(
-            content: Text("Successfully added"),
-          )));
           navigateToLogin(context);
         }).catchError((onError) {
           _scaffoldKey.currentState.showSnackBar((SnackBar(
@@ -76,44 +70,47 @@ class _TRegisterationState extends State<TRegisteration> {
         ),
         body: new Container(
           color: Color.fromRGBO(247, 216, 189,1),
+          height: 800,
           padding: EdgeInsets.all(25),
           child: new Form(
             key: _formKey,
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                new Text("Teacher Registration", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40, color: Color.fromRGBO(166 ,118, 51, 1)), ),
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new Text("Teacher Registration", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40, color: Color.fromRGBO(166 ,118, 51, 1)), ),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Name"),
-                  validator: (value)=> value.isEmpty ? 'Please fill in your name' : null,
-                  onSaved: (value) => _name=value,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Name"),
+                    validator: (value)=> value.isEmpty ? 'Please fill in your name' : null,
+                    onSaved: (value) => _name=value,),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Faculty ID"),
-                  validator: (value)=> value.isEmpty ? 'Please fill in your FID' : null,
-                  onSaved: (value) => _fid=value,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Faculty ID"),
+                    validator: (value)=> value.isEmpty ? 'Please fill in your FID' : null,
+                    onSaved: (value) => _fid=value,),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Password"),
-                  validator: (value)=> value.isEmpty ? 'Please fill in your password' : null,
-                  autofocus: false, obscureText: true,
-                  onSaved: (value) => _pass=value,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Password"),
+                    validator: (value)=> value.isEmpty ? 'Please fill in your password' : null,
+                    autofocus: false, obscureText: true,
+                    onSaved: (value) => _pass=value,),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Confirm Password"),
-                  validator: (value)=> value!=_pass ? 'Passwords did not match' : null,
-                  autofocus: false, obscureText: true,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Confirm Password"),
+                    validator: (value)=> value!=_pass ? 'Passwords did not match' : null,
+                    autofocus: false, obscureText: true,),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Email"),
-                  validator: (value)=> value.isEmpty ? 'Please fill in your Email' : null,
-                  onSaved: (value) => _email=value,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Email"),
+                    validator: (value)=> value.isEmpty ? 'Please fill in your Email' : null,
+                    onSaved: (value) => _email=value,),
 
-                new TextFormField( decoration: new InputDecoration(labelText: "Registeration Key"),
-                  validator: (value)=> value!="112233" ? 'Wrong Key' : null,),
+                  new TextFormField( decoration: new InputDecoration(labelText: "Registeration Key"),
+                    validator: (value)=> value!="112233" ? 'Wrong Key' : null,),
 
-                new RaisedButton(
-                  color: Color.fromRGBO(166 ,118, 51, 1),
-                  onPressed: validateAndSubmit,
-                  child: Text('Submit'),
-                ),
-              ],
+                  new RaisedButton(
+                    color: Color.fromRGBO(166 ,118, 51, 1),
+                    onPressed: validateAndSubmit,
+                    child: Text('Submit'),
+                  ),
+                ],
+              ),
             ),
           ),
         )

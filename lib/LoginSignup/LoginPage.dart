@@ -1,7 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:quixam/PasswordUtils.dart';
+import 'package:quixam/MIsc/Session_Id.dart';
+import 'package:quixam/Students/Sdash.dart';
+import 'package:quixam/Teachers/Tdash.dart';
+import 'file:///C:/Users/chitr/AndroidStudioProjects/quixam/lib/MIsc/PasswordUtils.dart';
 
 import 'SReg.dart';
 import 'TReg.dart';
@@ -19,6 +22,9 @@ class _LoginPageState extends State<LoginPage>{
     String _password;
     String _salt;
     String _hash;
+    String _sec;
+    String _sem;
+    String _name;
     final formkey = new GlobalKey<FormState>();
 
     void validateAndSubmit() async {
@@ -35,8 +41,8 @@ class _LoginPageState extends State<LoginPage>{
             .orderByChild("fid")
             .equalTo(_id)
             .once();
-        Map<dynamic, dynamic> values = cred.value;
-        Map<dynamic, dynamic> values1 = cred1.value;
+        Map<dynamic, dynamic> stud = cred.value;
+        Map<dynamic, dynamic> teach = cred1.value;
         if (cred.value == null && cred1.value == null) {
           _scaffoldKey.currentState.showSnackBar(
               SnackBar(content: Text("User does not exist"),)
@@ -44,21 +50,33 @@ class _LoginPageState extends State<LoginPage>{
         }
         else {
           if (cred.value == null) {
-            values1.forEach((key, value) {
+            teach.forEach((key, value) {
               _salt = value['salt'];
               _hash = value['hash'];
+              _name = value['name'];
             });
+            Session_Id.setName(_name);
+            Session_Id.setID(_id);
+            Session_Id.settype("Teacher");
           }
           else {
-            values.forEach((key, value) {
+            stud.forEach((key, value) {
               _salt = value['salt'];
               _hash = value['hash'];
+              _sec = value['sec'];
+              _sem = value['sem'];
+              _name = value['name'];
             });
+            Session_Id.setName(_name);
+            Session_Id.settype("Student");
+            Session_Id.setID(_id);
+            Session_Id.setSec(_sec);
+            Session_Id.setSem(_sem);
           }
             if (pu.verify(_password, _salt, _hash)) {
-              _scaffoldKey.currentState.showSnackBar(
-                  SnackBar(content: Text("Login Successful"),)
-              );
+                if(cred.value==null)
+                  navigateToTDash(context);
+                navigateToSDash(context);
             } else {
               _scaffoldKey.currentState.showSnackBar(
                   SnackBar(content: Text("Wrong Password"),)
@@ -70,6 +88,14 @@ class _LoginPageState extends State<LoginPage>{
 
     Future navigateToTReg(context) async {
       Navigator.push(context, MaterialPageRoute(builder: (context) => TRegisteration()));
+    }
+
+    Future navigateToTDash(context) async {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => TDash()));
+    }
+
+    Future navigateToSDash(context) async {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SDash()));
     }
 
     Future navigateToSReg(context) async {
