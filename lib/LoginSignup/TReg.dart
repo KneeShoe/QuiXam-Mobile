@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'file:///C:/Users/chitr/AndroidStudioProjects/quixam/lib/MIsc/PasswordUtils.dart';
+import 'package:quixam/Misc/PasswordUtils.dart';
 
 
 class TRegisteration extends StatefulWidget {

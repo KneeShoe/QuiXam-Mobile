@@ -5,7 +5,7 @@ class Session_Id {
   //Stores the session info of the current user
   static String _iD;
   static String _type;
-  static int _classId;
+  static String _classId;
   static String _name;
   static int _tqn;
   static String _sec;
@@ -60,11 +60,11 @@ class Session_Id {
     _name = n;
   }
 
-  static int getClassId() {
+  static String getClassId() {
     return _classId;
   }
 
-  static void setClassId(int id) {
+  static void setClassId(String id) {
     _classId = id;
   }
 

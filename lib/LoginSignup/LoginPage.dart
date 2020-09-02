@@ -1,10 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:quixam/MIsc/Session_Id.dart';
+import 'package:quixam/Misc/Session_Id.dart';
 import 'package:quixam/Students/Sdash.dart';
 import 'package:quixam/Teachers/Tdash.dart';
-import 'file:///C:/Users/chitr/AndroidStudioProjects/quixam/lib/MIsc/PasswordUtils.dart';
+import 'package:quixam/Misc//PasswordUtils.dart';
 
 import 'SReg.dart';
 import 'TReg.dart';
@@ -32,9 +32,6 @@ class _LoginPageState extends State<LoginPage>{
       formkey.currentState.save();
       if (formkey.currentState.validate()) {
         final ref = db.reference();
-        _scaffoldKey.currentState.showSnackBar(
-            SnackBar(content: Text("Logging in..."),)
-        );
         final cred = await ref.child("Credentials").orderByChild("usn").equalTo(
             _id).once();
         final cred1 = await ref.child("Credentials")
@@ -58,6 +55,7 @@ class _LoginPageState extends State<LoginPage>{
             Session_Id.setName(_name);
             Session_Id.setID(_id);
             Session_Id.settype("Teacher");
+            print(Session_Id.getName());
           }
           else {
             stud.forEach((key, value) {
@@ -76,7 +74,9 @@ class _LoginPageState extends State<LoginPage>{
             if (pu.verify(_password, _salt, _hash)) {
                 if(cred.value==null)
                   navigateToTDash(context);
-                navigateToSDash(context);
+                else {
+                  navigateToSDash(context);
+                }
             } else {
               _scaffoldKey.currentState.showSnackBar(
                   SnackBar(content: Text("Wrong Password"),)
@@ -84,6 +84,7 @@ class _LoginPageState extends State<LoginPage>{
             }
           }
         }
+      formkey.currentState.reset();
     }
 
     Future navigateToTReg(context) async {

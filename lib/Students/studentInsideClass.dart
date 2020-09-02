@@ -102,7 +102,7 @@ class _SDashState extends State<SDash> {
                       });
                 }
               }
-              return Center(child: CircularProgressIndicator());
+              return CircularProgressIndicator();
             }),
       ),
     );

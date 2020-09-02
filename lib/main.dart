@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
       theme: new ThemeData(
         primaryColor: Colors.blue,
       ),
-      home: new SomethingWentWrong()
+      home: Center(child: CircularProgressIndicator(),)
     );
       return SomethingWentWrong();
     }
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
         theme: new ThemeData(
           primaryColor: Colors.blue,
         ),
-        home: new SomethingWentWrong()
+        home: Center(child: CircularProgressIndicator(),)
       );
     }
 
