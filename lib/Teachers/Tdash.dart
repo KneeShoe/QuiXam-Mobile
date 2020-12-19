@@ -15,35 +15,54 @@ class _TDashState extends State<TDash> {
   List lists = new List();
   List classes = new List();
   List classList = new List();
-  final dbRef = FirebaseDatabase.instance.reference().child("Classes");
+  final dbRef = FirebaseDatabase.instance.reference();
   String nSem, nSec, cname;
 
   void validateAndSubmit() async {
     _formKey.currentState.save();
     if (_formKey.currentState.validate()) {
       classList.clear();
+      int cases=0;
       try {
-        final ds = await dbRef.orderByChild(nSem).orderByChild(nSec).once();
+        nSem = "S"+nSem.toString();           //Firebase doesnt like integers
+        final ds = await dbRef.child("Classes").child(nSem).once();
         Map<dynamic, dynamic> classP = ds.value;
-        if (classP != null) {
-          classP.forEach((key, value) {
-            classList.add(key);
-          });
-          if (classList.contains(cname)) {
+        if(classP.containsKey(nSec))
+          cases++;
+        classP= classP[nSec];
+        if (classP.containsKey(cname)) {
             _scaffoldKey.currentState.showSnackBar(new SnackBar(
               content: Text("That class already exists"),
             ));
-            return;
-          }
-        }
+            _formKey.currentState.reset();
+            cases=9;
+          }else
+            cases++;
       } catch (onError) {
-        dbRef.child(nSem).child(nSec).child(cname).set({
-          "tname": Session_Id.getName().toString(),
-        }).then((value) => _scaffoldKey.currentState.reassemble());
+        print(onError);
+      } finally{
+        if(cases==0){                                                     //Semester does not exist
+          dbRef.child("Classes").child(nSem).set(
+              {"sem": nSem});
+          dbRef.child("Classes").child(nSem).child(nSec).set(
+              {"sec": nSec});
+          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set(
+              {"tname": Session_Id.getName(),"cname": cname}
+          );
+        }else if(cases == 1) {                                            //Section does not exist
+          dbRef.child("Classes").child(nSem).child(nSec).set(
+              {"sec": nSec});
+          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set(
+              {"tname": Session_Id.getName(),"cname": cname});
+        }else if(cases == 2){
+          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set( //Class does not exist
+              {"tname": Session_Id.getName(),"cname": cname});
+        }
       }
     }
     _formKey.currentState.reset();
-    _scaffoldKey.currentState.reassemble();
+//    _scaffoldKey.currentState.reassemble();
+    setState(() {});
   }
 
   @override
@@ -127,13 +146,12 @@ class _TDashState extends State<TDash> {
               flex: 8,
               child: new Container(
                 child: FutureBuilder(
-                    future: dbRef.once(),
+                    future: dbRef.child("Classes").once(),
                     builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
                       if (snapshot.hasData) {
                         classes.clear();
                         Map<dynamic, dynamic> values = snapshot.data.value;
                         if (values == null) {
-                          print(Session_Id.getName());
                           return new Text(
                             "Please add classes. You currently have '0' classes.",
                             textAlign: TextAlign.center,
@@ -142,16 +160,21 @@ class _TDashState extends State<TDash> {
                           );
                         }
                         values.forEach((semester, section) {
+                          if(!(section is String))
                           section.forEach((className, value) {
+                            if(!(value is String))
                             value.forEach((key, teachName) {
-                              if (teachName['tname'] == Session_Id.getName()) {
-                                classes.add({
-                                  "sem": semester,
-                                  "sec": section.toString()[1],
-                                  "cname": key,
-                                });
+                              if(!(teachName is String))
+                                if (teachName['tname'] == Session_Id.getName()) {
+                                  print(key);
+                                  classes.add({
+                                    "sem": section["sem"][1],
+                                    "sec": value["sec"],
+                                    "cname": key,
+                                  });
+                                }
                               }
-                            });
+                            );
                           });
                         });
                         return new ListView.builder(

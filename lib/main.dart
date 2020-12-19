@@ -53,17 +53,6 @@ class _MyAppState extends State<MyApp> {
       return SomethingWentWrong();
     }
 
-    // Show a loader until FlutterFire is initialized
-    if (!_initialized) {
-      return new MaterialApp(
-        title: "QuiXam",
-        theme: new ThemeData(
-          primaryColor: Colors.blue,
-        ),
-        home: Center(child: CircularProgressIndicator(),)
-      );
-    }
-
     return new MaterialApp(
       title: "QuiXam",
       theme: new ThemeData(

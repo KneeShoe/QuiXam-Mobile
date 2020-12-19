@@ -29,8 +29,8 @@ class _SDashState extends State<SDash> {
         color: Color.fromRGBO(247, 216, 189, 1),
         child: FutureBuilder(
             future: dbRef
-                .child(Session_Id.getSem())
-                .orderByChild(Session_Id.getSec())
+                .child("S"+Session_Id.getSem())
+                .child(Session_Id.getSec())
                 .once(),
             builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
               if (snapshot.hasData) {
@@ -50,13 +50,11 @@ class _SDashState extends State<SDash> {
                     mainAxisAlignment: MainAxisAlignment.center,
                   );
                 } else {
-                  values.forEach((key, value) {
-                    value.forEach((classname, val) {
-                      val.forEach((tname, val) {
-                        classes.add(classname);
-                        classesData.add(val);
-                      });
-                    });
+                  values.forEach((semester, section) {
+                    if(!(section is String))
+                                classes.add({
+                                  "tname": section["tname"],
+                                  "cname": section["cname"],});
                   });
                   return new ListView.builder(
                       shrinkWrap: true,
@@ -79,12 +77,12 @@ class _SDashState extends State<SDash> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Text(
-                                            classes[index].toString(),
+                                            classes[index]["cname"].toString(),
                                             style: new TextStyle(
                                                 fontSize: 25,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text(classesData[index].toString(),
+                                          Text(classes[index]["tname"].toString(),
                                               style: new TextStyle(fontSize: 20)),
                                         ],
                                       ),
