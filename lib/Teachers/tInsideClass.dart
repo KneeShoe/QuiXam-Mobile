@@ -23,15 +23,11 @@ class _tInsideClassState extends State<tInsideClass> {
   void validateAndSubmit() async {
     _formKey.currentState.save();
     if (_formKey.currentState.validate()) {
-      quizList.clear();
       try {
         final ds = await dbRef.child("Quizzes").once();
-        Map<dynamic, dynamic> classP = ds.value;
-        if (classP != null) {
-          classP.forEach((key, value) {
-            quizzes.add(value["quizname"]);
-          });
-          if (quizList.contains(nqname)) {
+        Map<dynamic, dynamic> quiz = ds.value;
+        if (quiz != null) {
+          if (quiz.containsKey(nqname)) {
             _scaffoldKey.currentState.showSnackBar(new SnackBar(
               content: Text("That quiz already exists"),
             ));
@@ -44,9 +40,9 @@ class _tInsideClassState extends State<tInsideClass> {
         Session_Id.setqname(nqname);
         Session_Id.setTqn(int.parse(nmqn));
         Session_Id.setnqn(int.parse(nqnq));
-        navigateToCreateQuiz(context);
       }
     }
+    navigateToCreateQuiz(context);
     _formKey.currentState.reset();
     _scaffoldKey.currentState.reassemble();
   }
@@ -72,8 +68,9 @@ class _tInsideClassState extends State<tInsideClass> {
               child: new Card(
                 child: new Form(
                     key: _formKey,
-                    child: Column(children: [
-                      Spacer(),
+                    child: Column(
+                        children: [
+                          Spacer(),
                       Flexible(
                         flex: 4,
                         child: new Row(
@@ -137,104 +134,72 @@ class _tInsideClassState extends State<tInsideClass> {
             ),
             Flexible(
               flex: 8,
-              child: Text("Hey"),
-//              child: new Container(
-//                child: FutureBuilder(
-//                    future: dbRef.once(),
-//                    builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
-//                      if (snapshot.hasData) {
-//                        classes.clear();
-//                        Map<dynamic, dynamic> values = snapshot.data.value;
-//                        if (values == null) {
-//                          print(Session_Id.getName());
-//                          return new Text(
-//                            "Please add quizzes. You currently have '0' quizzes.",
-//                            textAlign: TextAlign.center,
-//                            style: new TextStyle(
-//                                fontSize: 30, fontWeight: FontWeight.bold),
-//                          );
-//                        }
-//                        values.forEach((semester, section) {
-//                          section.forEach((className, value) {
-//                            value.forEach((key, teachName) {
-//                              if (teachName['tname'] == Session_Id.getName()) {
-//                                classes.add({
-//                                  "sem": semester,
-//                                  "sec": section.toString()[1],
-//                                  "cname": key,
-//                                });
-//                              }
-//                            });
-//                          });
-//                        });
-//                        return Expanded(
-//                          flex: 8,
-//                              child: new ListView.builder(
-//                                physics: BouncingScrollPhysics(),
-//                                  itemCount: classes.length,
-//                                  shrinkWrap: true,
-//                                  padding: EdgeInsets.all(25),
-//                                  itemBuilder: (BuildContext context, int index) {
-//                                    return Align(
-//                                      alignment: Alignment.centerLeft,
-//                                      child: Column(
-//                                        children: [
-//                                          SizedBox(
-//                                            width: double.infinity,
-//                                            child: RaisedButton(
-//                                              color: Color.fromRGBO(255, 255, 255, 1),
-//                                              child: Container(
-//                                                padding: EdgeInsets.only(
-//                                                    left: 5,
-//                                                    top: 20,
-//                                                    right: 20,
-//                                                    bottom: 20),
-//                                                child: Align(
-//                                                  alignment: Alignment.centerLeft,
-//                                                  child: Column(
-//                                                    crossAxisAlignment:
-//                                                    CrossAxisAlignment.start,
-//                                                    children: <Widget>[
-//                                                      Text(classes[index]["cname"],
-//                                                          style: new TextStyle(
-//                                                              fontSize: 25,
-//                                                              fontWeight:
-//                                                              FontWeight.bold)),
-//                                                      Row(children: <Widget>[
-//                                                        Text(
-//                                                          classes[index]["sem"],
-//                                                          style: new TextStyle(
-//                                                              fontSize: 20),
-//                                                        ),
-//                                                        SizedBox(width: 7,),
-//                                                        Text(classes[index]["sec"],
-//                                                            style: new TextStyle(
-//                                                                fontSize: 20)),
-//                                                      ],)
-//                                                    ],
-//                                                  ),
-//                                                ),
-//                                              ),
-//                                              onPressed: () {
-//                                                Session_Id.setClassId(
-//                                                    classes[index]["cname"]);
-//                                                Session_Id.setSem(
-//                                                    classes[index]["sem"]);
-//                                                Session_Id.setSec(
-//                                                    classes[index]["sec"]);
-//                                              },
-//                                            ),
-//                                          ),
-//                                          SizedBox(height: 10),
-//                                        ],
-//                                      ),
-//                                    );
-//                                  }),
-//                        );
-//                      }
-//                      return Center(child: CircularProgressIndicator());
-//                    }),
-//              ),
+              child: new Container(
+                child: FutureBuilder(
+                    future: dbRef.child("Classes").child("S"+Session_Id.getSem()).child(Session_Id.getSec()).child(Session_Id.getClassId()).once(),
+                    builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
+                      if (snapshot.hasData) {
+                        quizzes.clear();
+                        Map<dynamic, dynamic> values = snapshot.data.value;
+                        if (values == null) {
+                          print(values);
+                          return Padding(
+                            padding: EdgeInsets.all(50),
+                            child: new Text(
+                              "Please add quizzes. You currently have '0' quizzes.",
+                              textAlign: TextAlign.center,
+                              style: new TextStyle(
+                                  fontSize: 30, fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        }
+                        values.forEach((key, value) {
+                          if(!(value is String))
+                            quizzes.add(value["qname"]);
+                        });
+                        return Expanded(
+                          flex: 8,
+                              child: new ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                  itemCount: quizzes.length,
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.all(25),
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: RaisedButton(
+                                              color: Color.fromRGBO(255, 255, 255, 1),
+                                              child: Container(
+                                                padding: EdgeInsets.only(
+                                                    left: 5,
+                                                    top: 20,
+                                                    right: 20,
+                                                    bottom: 20),
+                                                child: Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(quizzes[index],style: new TextStyle(fontSize: 30)),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Session_Id.setQname(quizzes[index]);
+                                                print(quizzes[index]);
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                        );
+                      }
+                      return Center(child: CircularProgressIndicator());
+                    }),
+              ),
             ),
           ]),
         ));
