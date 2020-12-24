@@ -11,6 +11,15 @@ class Session_Id {
   static String _sec;
   static String _sem;
   static String _qname;
+  static int _nqn;
+
+  static void setnqn(int n){
+    _nqn=n;
+  }
+
+  static int getnqn(){
+    return _nqn;
+  }
 
   static void setName(String n) {
     _name = n;

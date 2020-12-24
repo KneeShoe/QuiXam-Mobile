@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quixam/Misc/Session_Id.dart';
+import 'package:quixam/Teachers/tInsideClass.dart';
 
 class TDash extends StatefulWidget {
   @override
@@ -42,18 +43,24 @@ class _TDashState extends State<TDash> {
         print(onError);
       } finally{
         if(cases==0){                                                     //Semester does not exist
-          dbRef.child("Classes").child(nSem).set(
-              {"sem": nSem});
-          dbRef.child("Classes").child(nSem).child(nSec).set(
-              {"sec": nSec});
-          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set(
-              {"tname": Session_Id.getName(),"cname": cname}
-          );
+          dbRef.child("Classes").child(nSem).set({
+            "sem":nSem,
+            nSec :{
+              "sec": nSec,
+              cname : {
+                "cname": cname,
+                "tname": Session_Id.getName(),
+              }
+            }
+          });
         }else if(cases == 1) {                                            //Section does not exist
-          dbRef.child("Classes").child(nSem).child(nSec).set(
-              {"sec": nSec});
-          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set(
-              {"tname": Session_Id.getName(),"cname": cname});
+          dbRef.child("Classes").child(nSem).child(nSec).set({
+            "sec": nSec,
+            cname : {
+              "cname": cname,
+              "tname": Session_Id.getName(),
+            }
+          });
         }else if(cases == 2){
           dbRef.child("Classes").child(nSem).child(nSec).child(cname).set( //Class does not exist
               {"tname": Session_Id.getName(),"cname": cname});
@@ -63,6 +70,10 @@ class _TDashState extends State<TDash> {
     _formKey.currentState.reset();
 //    _scaffoldKey.currentState.reassemble();
     setState(() {});
+  }
+
+  Future navigateToInsideClass(context) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => tInsideClass()));
   }
 
   @override
@@ -166,7 +177,6 @@ class _TDashState extends State<TDash> {
                             value.forEach((key, teachName) {
                               if(!(teachName is String))
                                 if (teachName['tname'] == Session_Id.getName()) {
-                                  print(key);
                                   classes.add({
                                     "sem": section["sem"][1],
                                     "sec": value["sec"],
@@ -229,6 +239,7 @@ class _TDashState extends State<TDash> {
                                             classes[index]["sem"]);
                                           Session_Id.setSec(
                                             classes[index]["sec"]);
+                                          navigateToInsideClass(context);
                                         },
                                       ),
                                     ),
