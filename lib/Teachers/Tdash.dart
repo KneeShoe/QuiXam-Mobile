@@ -43,7 +43,7 @@ class _TDashState extends State<TDash> {
         print(onError);
       } finally{
         if(cases==0){                                                     //Semester does not exist
-          dbRef.child("Classes").child(nSem).set({
+          dbRef.child("Classes").child(nSem).update({
             "sem":nSem,
             nSec :{
               "sec": nSec,
@@ -54,7 +54,7 @@ class _TDashState extends State<TDash> {
             }
           });
         }else if(cases == 1) {                                            //Section does not exist
-          dbRef.child("Classes").child(nSem).child(nSec).set({
+          dbRef.child("Classes").child(nSem).child(nSec).update({
             "sec": nSec,
             cname : {
               "cname": cname,
@@ -62,7 +62,7 @@ class _TDashState extends State<TDash> {
             }
           });
         }else if(cases == 2){
-          dbRef.child("Classes").child(nSem).child(nSec).child(cname).set( //Class does not exist
+          dbRef.child("Classes").child(nSem).child(nSec).child(cname).update( //Class does not exist
               {"tname": Session_Id.getName(),"cname": cname});
         }
       }

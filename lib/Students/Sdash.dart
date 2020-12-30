@@ -2,6 +2,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quixam/Misc/Session_Id.dart';
+import 'package:quixam/Students/sNewTests.dart';
+import 'package:quixam/Students/studentHome.dart';
 
 class SDash extends StatefulWidget {
   @override
@@ -15,6 +17,10 @@ class _SDashState extends State<SDash> {
   List classes = new List();
   List classesData = new List();
   final dbRef = FirebaseDatabase.instance.reference().child("Classes");
+
+  Future navigateToInsideClass(context) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => homePage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +57,10 @@ class _SDashState extends State<SDash> {
                   );
                 } else {
                   values.forEach((semester, section) {
-                    if(!(section is String))
-                                classes.add({
-                                  "tname": section["tname"],
-                                  "cname": section["cname"],});
+                    if(!(section is String)){
+                      classes.add(section["tname"]);
+                      classesData.add(section["cname"]);
+                    }
                   });
                   return new ListView.builder(
                       shrinkWrap: true,
@@ -77,19 +83,20 @@ class _SDashState extends State<SDash> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Text(
-                                            classes[index]["cname"].toString(),
+                                            classesData[index].toString(),
                                             style: new TextStyle(
                                                 fontSize: 25,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text(classes[index]["tname"].toString(),
+                                          Text(classes[index].toString(),
                                               style: new TextStyle(fontSize: 20)),
                                         ],
                                       ),
                                     ),
                                   ),
                                   onPressed: () {
-                                    Session_Id.setClassId(classes[index].toString());
+                                    Session_Id.setClassId(classesData[index].toString());
+                                    navigateToInsideClass(context);
                                   },
                                 ),
                               ),

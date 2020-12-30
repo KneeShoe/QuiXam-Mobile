@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quixam/Misc/Session_Id.dart';
 import 'package:quixam/Teachers/createQuiz.dart';
-import 'package:quixam/Teachers/tInsideClass.dart';
+import 'package:quixam/Teachers/leaderboard.dart';
 
 class tInsideClass extends StatefulWidget {
   @override
@@ -39,22 +39,23 @@ class _tInsideClassState extends State<tInsideClass> {
       }finally{
         Session_Id.setqname(nqname);
         Session_Id.setTqn(int.parse(nmqn));
-        Session_Id.setnqn(int.parse(nqnq));
       }
     }
     navigateToCreateQuiz(context);
     _formKey.currentState.reset();
-    _scaffoldKey.currentState.reassemble();
   }
 
   void navigateToCreateQuiz(context) async{
     Navigator.push(context, MaterialPageRoute(builder: (context) => createQuiz()));
   }
 
+  void navigateToLeaderBoard(context) async{
+    Navigator.push(context, MaterialPageRoute(builder: (context) => leaderboard()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _scaffoldKey,
         appBar: new AppBar(
           title: new Text("Welcome, $_name"),
           backgroundColor: Color.fromRGBO(166, 118, 51, 1),
@@ -62,8 +63,9 @@ class _tInsideClassState extends State<tInsideClass> {
         body: Container(
           color: Color.fromRGBO(247, 216, 189, 1),
           padding: EdgeInsets.all(10),
-          child: new Column(children: [
-            Flexible(
+          child: new Column(
+              children: [
+            Expanded(
               flex: 2,
               child: new Card(
                 child: new Form(
@@ -91,28 +93,15 @@ class _tInsideClassState extends State<tInsideClass> {
                             ),
                             Spacer(),
                             Expanded(
-                              flex: 2,
+                              flex: 3,
                               child: new TextFormField(
                                 decoration:
-                                new InputDecoration(labelText: "Max Qn"),
+                                new InputDecoration(labelText: "No. of Qns"),
                                 validator: (value) =>
                                 value.isEmpty
                                     ? 'Please fill in the Max Qn'
                                     : null,
                                 onSaved: (value) => nmqn = value,
-                              ),
-                            ),
-                            Spacer(),
-                            Expanded(
-                              flex: 2,
-                              child: new TextFormField(
-                                decoration: new InputDecoration(
-                                    labelText: "Qn/quiz"),
-                                validator: (value) =>
-                                value.isEmpty
-                                    ? 'Please fill in the Qn/quiz'
-                                    : null,
-                                onSaved: (value) => nqnq = value,
                               ),
                             ),
                             Spacer(),
@@ -132,17 +121,16 @@ class _tInsideClassState extends State<tInsideClass> {
                     ])),
               ),
             ),
-            Flexible(
+            Expanded(
               flex: 8,
               child: new Container(
                 child: FutureBuilder(
-                    future: dbRef.child("Classes").child("S"+Session_Id.getSem()).child(Session_Id.getSec()).child(Session_Id.getClassId()).once(),
+                    future: dbRef.child("Classes").child("S"+Session_Id.getSem()).child(Session_Id.getSec()).child(Session_Id.getClassId()).child("Quizzes").once(),
                     builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
                       if (snapshot.hasData) {
                         quizzes.clear();
                         Map<dynamic, dynamic> values = snapshot.data.value;
                         if (values == null) {
-                          print(values);
                           return Padding(
                             padding: EdgeInsets.all(50),
                             child: new Text(
@@ -154,12 +142,9 @@ class _tInsideClassState extends State<tInsideClass> {
                           );
                         }
                         values.forEach((key, value) {
-                          if(!(value is String))
-                            quizzes.add(value["qname"]);
+                          quizzes.add(value["qname"]);
                         });
-                        return Expanded(
-                          flex: 8,
-                              child: new ListView.builder(
+                        return new ListView.builder(
                                 physics: BouncingScrollPhysics(),
                                   itemCount: quizzes.length,
                                   shrinkWrap: true,
@@ -186,16 +171,14 @@ class _tInsideClassState extends State<tInsideClass> {
                                               ),
                                               onPressed: () {
                                                 Session_Id.setQname(quizzes[index]);
-                                                print(quizzes[index]);
+                                                navigateToLeaderBoard(context);
                                               },
                                             ),
                                           ),
                                           SizedBox(height: 10),
-                                        ],
-                                      ),
+                                        ],)
                                     );
-                                  }),
-                        );
+                                  });
                       }
                       return Center(child: CircularProgressIndicator());
                     }),

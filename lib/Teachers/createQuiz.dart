@@ -18,6 +18,7 @@ class _createQuizState extends State<createQuiz>{
   List<TextEditingController> opcc = new List.generate(Session_Id.getTqn(), (_)=> TextEditingController());
   List<TextEditingController> opdc = new List.generate(Session_Id.getTqn(), (_)=> TextEditingController());
   List<TextEditingController> corrc = new List.generate(Session_Id.getTqn(), (_)=> TextEditingController());
+  List corr = new List.generate(Session_Id.getTqn(), (_) => null);
   String dropdownValue='Select';
 
   Widget question(int index){
@@ -54,10 +55,53 @@ class _createQuizState extends State<createQuiz>{
               decoration: new InputDecoration(labelText: "Option D"),
               validator: (value)=> value.isEmpty ? 'Please enter option D' : null,
               controller: opdc[index],),
-            TextFormField(
-              decoration: new InputDecoration(labelText: "Correct Answer (A/B/C/D)"),
-              validator: (value)=> value.isEmpty ? 'Please enter the correct answer(A,B,C,D)' : null,
-              controller: corrc[index],),
+            Row(
+              children: [
+                Radio(
+                  value: "a",
+                  groupValue: corr[index],
+                  onChanged: (value){
+                    setState(() {
+                      corr[index]=value;
+                    });
+                  }
+                ),
+                Text("A"),
+                SizedBox(width: 20,),
+                Radio(
+                    value: "b",
+                    groupValue: corr[index],
+                    onChanged: (value){
+                      setState(() {
+                        corr[index]=value;
+                      });
+                    }
+                ),
+                Text("B"),
+                SizedBox(width: 20,),
+                Radio(
+                    value: "c",
+                    groupValue: corr[index],
+                    onChanged: (value){
+                      setState(() {
+                        corr[index]=value;
+                      });
+                    }
+                ),
+                Text("C"),
+                SizedBox(width: 20,),
+                Radio(
+                    value: "d",
+                    groupValue: corr[index],
+                    onChanged: (value){
+                      setState(() {
+                        corr[index]=value;
+                      });
+                    }
+                ),
+                Text("D"),
+              ],
+            )
           ],
         ),
       ),
@@ -96,20 +140,20 @@ class _createQuizState extends State<createQuiz>{
                 var json={};
                 for(int i=0;i<Session_Id.getTqn();i++){
                     json.addAll({
-                      (i+1).toString() : {
+                      "Q"+(i+1).toString() : {
                         "qn": qnc[i].value.text,
                         "opa": opac[i].value.text,
                         "opb": opbc[i].value.text,
                         "opc": opcc[i].value.text,
                         "opd": opdc[i].value.text,
-                        "corr": corrc[i].value.text.toString().toLowerCase(),
+                        "corr": corr[i],
                       }
                     });
                 }
-                dbRef.child("Classes").child(sem).child(sec).child(classn).push().set({
+                print(corr);
+                dbRef.child("Classes").child(sem).child(sec).child(classn).child("Quizzes").push().set({
                   "qname": Session_Id.getqname(),
                   "Tqn": Session_Id.getTqn(),
-                  "Nqn": Session_Id.getnqn(),
                 });
                 dbRef.child("Quizzes").child(Session_Id.getqname()).set(json);
                 Navigator.pop(context);
