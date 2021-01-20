@@ -23,47 +23,53 @@ class _TDashState extends State<TDash> {
     _formKey.currentState.save();
     if (_formKey.currentState.validate()) {
       classList.clear();
-      int cases=0;
+      int cases = 0;
       try {
-        nSem = "S"+nSem.toString();           //Firebase doesnt like integers
+        nSem = "S" + nSem.toString(); //Firebase doesnt like integers
         final ds = await dbRef.child("Classes").child(nSem).once();
         Map<dynamic, dynamic> classP = ds.value;
-        if(classP.containsKey(nSec))
-          cases++;
-        classP= classP[nSec];
+        if (classP.containsKey(nSec)) cases++;
+        classP = classP[nSec];
         if (classP.containsKey(cname)) {
-            _scaffoldKey.currentState.showSnackBar(new SnackBar(
-              content: Text("That class already exists"),
-            ));
-            _formKey.currentState.reset();
-            cases=9;
-          }else
-            cases++;
+          _scaffoldKey.currentState.showSnackBar(new SnackBar(
+            content: Text("That class already exists"),
+          ));
+          _formKey.currentState.reset();
+          cases = 9;
+        } else
+          cases++;
       } catch (onError) {
         print(onError);
-      } finally{
-        if(cases==0){                                                     //Semester does not exist
+      } finally {
+        if (cases == 0) {
+          //Semester does not exist
           dbRef.child("Classes").child(nSem).update({
-            "sem":nSem,
-            nSec :{
+            "sem": nSem,
+            nSec: {
               "sec": nSec,
-              cname : {
+              cname: {
                 "cname": cname,
                 "tname": Session_Id.getName(),
               }
             }
           });
-        }else if(cases == 1) {                                            //Section does not exist
+        } else if (cases == 1) {
+          //Section does not exist
           dbRef.child("Classes").child(nSem).child(nSec).update({
             "sec": nSec,
-            cname : {
+            cname: {
               "cname": cname,
               "tname": Session_Id.getName(),
             }
           });
-        }else if(cases == 2){
-          dbRef.child("Classes").child(nSem).child(nSec).child(cname).update( //Class does not exist
-              {"tname": Session_Id.getName(),"cname": cname});
+        } else if (cases == 2) {
+          dbRef
+              .child("Classes")
+              .child(nSem)
+              .child(nSec)
+              .child(cname)
+              .update(//Class does not exist
+                  {"tname": Session_Id.getName(), "cname": cname});
         }
       }
     }
@@ -73,7 +79,8 @@ class _TDashState extends State<TDash> {
   }
 
   Future navigateToInsideClass(context) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => tInsideClass()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => tInsideClass()));
   }
 
   @override
@@ -121,7 +128,7 @@ class _TDashState extends State<TDash> {
                                 validator: (value) => value.isEmpty
                                     ? 'Please fill in the section'
                                     : null,
-                                onSaved: (value) => nSec = value,
+                                onSaved: (value) => nSec = value.toUpperCase(),
                               ),
                             ),
                             Spacer(),
@@ -171,21 +178,21 @@ class _TDashState extends State<TDash> {
                           );
                         }
                         values.forEach((semester, section) {
-                          if(!(section is String))
-                          section.forEach((className, value) {
-                            if(!(value is String))
-                            value.forEach((key, teachName) {
-                              if(!(teachName is String))
-                                if (teachName['tname'] == Session_Id.getName()) {
-                                  classes.add({
-                                    "sem": section["sem"][1],
-                                    "sec": value["sec"],
-                                    "cname": key,
-                                  });
-                                }
-                              }
-                            );
-                          });
+                          if (!(section is String))
+                            section.forEach((className, value) {
+                              if (!(value is String))
+                                value.forEach((key, teachName) {
+                                  if (!(teachName is String)) if (teachName[
+                                          'tname'] ==
+                                      Session_Id.getName()) {
+                                    classes.add({
+                                      "sem": section["sem"][1],
+                                      "sec": value["sec"],
+                                      "cname": key,
+                                    });
+                                  }
+                                });
+                            });
                         });
                         return new ListView.builder(
                             shrinkWrap: true,
@@ -217,17 +224,21 @@ class _TDashState extends State<TDash> {
                                                         fontSize: 25,
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                                Row(children: <Widget>[
-                                                  Text(
-                                                    classes[index]["sem"],
-                                                    style: new TextStyle(
-                                                        fontSize: 20),
-                                                  ),
-                                                  SizedBox(width: 7,),
-                                                  Text(classes[index]["sec"],
+                                                Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                      classes[index]["sem"],
                                                       style: new TextStyle(
-                                                          fontSize: 20)),
-                                                ],)
+                                                          fontSize: 20),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 7,
+                                                    ),
+                                                    Text(classes[index]["sec"],
+                                                        style: new TextStyle(
+                                                            fontSize: 20)),
+                                                  ],
+                                                )
                                               ],
                                             ),
                                           ),
@@ -236,9 +247,9 @@ class _TDashState extends State<TDash> {
                                           Session_Id.setClassId(
                                               classes[index]["cname"]);
                                           Session_Id.setSem(
-                                            classes[index]["sem"]);
+                                              classes[index]["sem"]);
                                           Session_Id.setSec(
-                                            classes[index]["sec"]);
+                                              classes[index]["sec"]);
                                           navigateToInsideClass(context);
                                         },
                                       ),
@@ -249,7 +260,7 @@ class _TDashState extends State<TDash> {
                               );
                             });
                       }
-                      return Center(child:CircularProgressIndicator());
+                      return Center(child: CircularProgressIndicator());
                     }),
               ),
             ),

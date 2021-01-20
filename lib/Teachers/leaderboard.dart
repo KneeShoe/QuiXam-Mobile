@@ -8,10 +8,9 @@ class leaderboard extends StatefulWidget {
 }
 
 class _leaderboardState extends State<leaderboard> {
-
   final dbRef = FirebaseDatabase.instance.reference();
-  List names=new List();
-  List scores=new List();
+  List names = new List();
+  List scores = new List();
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +22,15 @@ class _leaderboardState extends State<leaderboard> {
       body: Container(
         color: Color.fromRGBO(247, 216, 189, 1),
         child: FutureBuilder(
-          future: dbRef.child("LeaderBoard").child(Session_Id.getQname()).once(),
-          builder: (context, AsyncSnapshot<DataSnapshot> snapshot){
-            if(snapshot.hasData){
+          future:
+              dbRef.child("LeaderBoard").child(Session_Id.getqname()).once(),
+          builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
+            if (snapshot.hasData) {
               names.clear();
               scores.clear();
               print(Session_Id.getqname());
-              Map<dynamic,dynamic> vals=snapshot.data.value;
-              if(vals==null){
+              Map<dynamic, dynamic> vals = snapshot.data.value;
+              if (vals == null) {
                 return Column(
                   children: [
                     Padding(
@@ -51,31 +51,41 @@ class _leaderboardState extends State<leaderboard> {
                 names.add(value['sname']);
                 scores.add(value['score']);
               });
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                    Text("Student Name",style: TextStyle(fontSize: 25),),
-                    Text("Score",style: TextStyle(fontSize: 25)),
-                    ]
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                        itemCount: names.length,
-                        itemBuilder: (context, index){
-                          return Card(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(names[index],style: TextStyle(fontSize: 20)),
-                                Text(scores[index].toString(),style: TextStyle(fontSize: 20)),
-                              ],
-                            ),
-                          );
-                    }),
-                  ),
-                ],
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Student Name",
+                            style: TextStyle(fontSize: 30),
+                          ),
+                          Text("Score", style: TextStyle(fontSize: 30)),
+                        ]),
+                    Divider(),
+                    Expanded(
+                      child: ListView.builder(
+                          itemCount: names.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(names[index],
+                                      style: TextStyle(fontSize: 25)),
+                                  Divider(),
+                                  Text(scores[index].toString(),
+                                      style: TextStyle(fontSize: 25)),
+                                ],
+                              ),
+                            );
+                          }),
+                    ),
+                  ],
+                ),
               );
             }
             return CircularProgressIndicator();
